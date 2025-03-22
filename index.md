@@ -1,141 +1,145 @@
-# Playwright Documentation
+# Playwright Documentation Index
 
 ## Executive Summary
 
-Playwright is a powerful browser automation framework developed by Microsoft that enables reliable end-to-end testing and automation across Chromium, Firefox, and WebKit browsers. Built with a focus on modern web testing needs, Playwright provides a unified API that works consistently across browsers while offering advanced capabilities like auto-waiting, network interception, and mobile emulation.
-
-The project is structured as a monorepo with several key packages:
-- **playwright-core**: The foundation that provides browser automation without bundling browsers
-- **playwright**: The main package that extends core with browser installations
-- **playwright-test**: A complete testing solution with fixtures, parallelization, and reporting
-- **Browser-specific packages**: For targeted browser automation
-- **Component testing packages**: For testing UI components in isolation
-
-This documentation provides comprehensive information about Playwright's architecture, components, and workflows to help developers effectively use and extend the framework.
-
-## Table of Contents
-
-### Core Documentation
-- [Overview](overview.md) - Introduction to Playwright and its capabilities
-- [API Reference](api/index.md) - Detailed API documentation
-- [Architecture](architecture.md) - Technical architecture and design principles
-- [Component Reference](components/index.md) - Documentation for individual components
-- [Relationships](relationships.md) - How components interact with each other
-- [Workflows](workflows/index.md) - Common usage patterns and workflows
-
-### Technical Specifications
-- [Chromium Protocol](components/cGFja2FnZXMvcGxheXdyaWdodC1jb3JlL3NyYy9zZXJ2ZXIvY2hyb21pdW0vcHJvdG9jb2wuZC50cw__.md) - Chromium-specific protocol implementation
-- [Core Protocol Types](components/cGFja2FnZXMvcGxheXdyaWdodC1jb3JlL3R5cGVzL3Byb3RvY29sLmQudHM_.md) - Protocol type definitions
-- [Core Types](components/cGFja2FnZXMvcGxheXdyaWdodC1jb3JlL3R5cGVzL3R5cGVzLmQudHM_.md) - Core type definitions
-- [Client Types](components/cGFja2FnZXMvcGxheXdyaWdodC1jbGllbnQvdHlwZXMvdHlwZXMuZC50cw__.md) - Client-side type definitions
-- [Test Types](components/cGFja2FnZXMvcGxheXdyaWdodC90eXBlcy90ZXN0LmQudHM_.md) - Test-related type definitions
-
-### Development Tools and Utilities
-- [Dependency Checker](components/check_deps.md) - Tool for checking dependencies
-- [Audit Checker](components/check_audit.md) - Security audit tooling
-- [Chromium CDN Checker](components/check_chromium_cdn.md) - Tool for verifying Chromium CDN
-- [Channel Generator](components/generate_channels.md) - Tool for generating release channels
-- [Copyright Information](components/copyright.md) - Copyright and licensing details
-
-## Documentation for Different Audiences
-
-### For Testers and QA Engineers
-- [Overview](overview.md) - Get started with Playwright testing
-- [API Reference](api/index.md) - Learn the available testing APIs
-- [Workflows](workflows/index.md) - Common testing patterns and best practices
-
-### For Developers
-- [API Reference](api/index.md) - Detailed API documentation
-- [Component Reference](components/index.md) - Understanding individual components
-- [Workflows](workflows/index.md) - Integration patterns and usage examples
-
-### For Architects and Technical Leads
-- [Architecture](architecture.md) - Technical architecture and design principles
-- [Relationships](relationships.md) - Component interactions and dependencies
-- [Core Types](components/cGFja2FnZXMvcGxheXdyaWdodC1jb3JlL3R5cGVzL3R5cGVzLmQudHM_.md) - Understanding the type system
-
-### For Contributors
-- [Architecture](architecture.md) - Understanding the codebase structure
-- [Protocol Documentation](components/cGFja2FnZXMvcGxheXdyaWdodC1jb3JlL3R5cGVzL3Byb3RvY29sLmQudHM_.md) - Browser communication protocols
-- [Development Tools](components/check_deps.md) - Tools for development
-
-## Playwright Architecture Overview
+Playwright is a powerful browser automation framework that enables reliable end-to-end testing and automation across Chromium, Firefox, and WebKit browsers. It provides a unified API for browser control, user interaction automation, and application behavior verification, with features like auto-waiting, strong isolation, mobile emulation, network control, and comprehensive debugging tools.
 
 ```mermaid
 graph TD
-    subgraph "Core Packages"
-        A[playwright-core] --> B[playwright]
-        B --> C[playwright-test]
-    end
+    User[User] --> Tests[Test Scripts]
+    Tests --> PlaywrightAPI[Playwright API]
+    PlaywrightAPI --> Browsers[Browser Engines]
+    Browsers --> WebApps[Web Applications]
     
-    subgraph "Browser-Specific Packages"
-        B --> D[playwright-chromium]
-        B --> E[playwright-firefox]
-        B --> F[playwright-webkit]
-        
-        D --> G["@playwright/browser-chromium"]
-        E --> H["@playwright/browser-firefox"]
-        F --> I["@playwright/browser-webkit"]
-    end
+    PlaywrightAPI --> Components[Component Testing]
+    PlaywrightAPI --> Assertions[Test Assertions]
+    PlaywrightAPI --> Network[Network Control]
+    PlaywrightAPI --> Debug[Debugging Tools]
     
-    subgraph "Component Testing"
-        C --> J[playwright-ct-core]
-        J --> K[playwright-ct-react]
-        J --> L[playwright-ct-vue]
-        J --> M[playwright-ct-svelte]
-    end
-    
-    subgraph "Supporting Tools"
-        C --> N[Trace Viewer]
-        C --> O[HTML Reporter]
-        C --> P[Recorder]
-    end
+    Browsers --> Chromium
+    Browsers --> Firefox
+    Browsers --> WebKit
 ```
 
 ## Getting Started
 
-### Installation
+### Installation and Setup
+- [Playwright Documentation](index.md) - Complete installation guide
+- [Playwright API Reference](api/index.md) - API overview for getting started
 
-```bash
-# Install Playwright with the Test Runner
-npm init playwright@latest
+### First Steps
+- [Playwright Documentation](index.md) - Writing your first test
+- [Playwright Workflow Documentation](workflows/index.md) - Understanding test workflow
 
-# Or install Playwright library only
-npm install playwright
-```
+### Project Configuration
+- [Playwright Documentation](index.md) - Configuring your project
+- [Playwright Architecture Documentation](architecture.md) - Understanding the framework structure
 
-### Basic Usage Example
+## Common Tasks
 
-```javascript
-// Example: Basic test with Playwright Test
-import { test, expect } from '@playwright/test';
+### Browser Automation
+- [Playwright API Reference](api/index.md) - Browser control APIs
+- [Playwright Documentation](index.md) - Navigation and page interactions
 
-test('basic test', async ({ page }) => {
-  // Navigate to a website
-  await page.goto('https://playwright.dev/');
-  
-  // Interact with the page
-  await page.click('text=Get Started');
-  
-  // Assert something on the page
-  await expect(page).toHaveTitle(/Playwright/);
-});
-```
+### Element Selection and Interaction
+- [Playwright API Reference](api/index.md) - Locator strategies
+- [types.d.ts](components/cGFja2FnZXMvcGxheXdyaWdodC1jb3JlL3R5cGVzL3R5cGVzLmQudHM_.md) - Element interaction types
 
-### Key Features
+### Writing Assertions
+- [test.d.ts](components/cGFja2FnZXMvcGxheXdyaWdodC90eXBlcy90ZXN0LmQudHM_.md) - Test assertion APIs
+- [Playwright API Reference](api/index.md) - Assertion examples
 
-1. **Cross-browser automation**: Run tests on Chromium, Firefox, and WebKit with the same code
-2. **Auto-waiting**: Elements are automatically waited for before actions are performed
-3. **Network interception**: Monitor and modify network requests and responses
-4. **Mobile emulation**: Test responsive designs with device emulation
-5. **Powerful selectors**: Locate elements using CSS, XPath, text content, and more
-6. **Tracing**: Capture execution traces for debugging and analysis
-7. **Component testing**: Test UI components in isolation
+### Running Tests
+- [Playwright Documentation](index.md) - Test execution options
+- [Playwright Workflow Documentation](workflows/index.md) - Test execution workflows
 
-### Next Steps
+### Working with Forms
+- [Playwright API Reference](api/index.md) - Form interaction methods
+- [types.d.ts](components/cGFja2FnZXMvcGxheXdyaWdodC1jbGllbnQvdHlwZXMvdHlwZXMuZC50cw__.md) - Form element types
 
-- Explore the [API Reference](api/index.md) to learn about available functionality
-- Check out [Workflows](workflows/index.md) for common usage patterns
-- Understand the [Architecture](architecture.md) for deeper technical insights
+## Advanced Features
 
-For more detailed information, visit the [official Playwright website](https://playwright.dev).
+### Network Interception
+- [protocol.d.ts](components/cGFja2FnZXMvcGxheXdyaWdodC1jb3JlL3NyYy9zZXJ2ZXIvY2hyb21pdW0vcHJvdG9jb2wuZC50cw__.md) - Network protocol details
+- [Playwright API Reference](api/index.md) - Request and response handling
+
+### Component Testing
+- [Playwright Components Documentation](components/index.md) - Component testing overview
+- [test.d.ts](components/cGFja2FnZXMvcGxheXdyaWdodC90eXBlcy90ZXN0LmQudHM_.md) - Component test APIs
+
+### Mobile Emulation
+- [Playwright API Reference](api/index.md) - Device emulation
+- [types.d.ts](components/cGFja2FnZXMvcGxheXdyaWdodC1jb3JlL3R5cGVzL3R5cGVzLmQudHM_.md) - Device descriptor types
+
+### Authentication Strategies
+- [Playwright Workflow Documentation](workflows/index.md) - Authentication workflows
+- [Playwright API Reference](api/index.md) - Session and cookie management
+
+### Visual Testing
+- [Playwright API Reference](api/index.md) - Screenshot and visual comparison
+- [Playwright Documentation](index.md) - Visual testing strategies
+
+### Parallel Test Execution
+- [Playwright Documentation](index.md) - Configuring parallelism
+- [Playwright Architecture Documentation](architecture.md) - Understanding test isolation
+
+## Troubleshooting
+
+### Debugging Tests
+- [Playwright Documentation](index.md) - Debugging techniques
+- [Playwright API Reference](api/index.md) - Debugging APIs
+
+### Common Errors
+- [Playwright Documentation](index.md) - Resolving frequent issues
+- [Playwright Workflow Documentation](workflows/index.md) - Workflow troubleshooting
+
+### Performance Optimization
+- [Playwright Architecture Documentation](architecture.md) - Performance considerations
+- [Playwright Documentation](index.md) - Test optimization techniques
+
+### Browser-Specific Issues
+- [protocol.d.ts](components/cGFja2FnZXMvcGxheXdyaWdodC1jb3JlL3R5cGVzL3Byb3RvY29sLmQudHM_.md) - Browser protocol details
+- [Playwright Documentation](index.md) - Browser compatibility
+
+## API Reference
+
+### Core API
+- [Playwright API Reference](api/index.md) - Complete API documentation
+- [types.d.ts](components/cGFja2FnZXMvcGxheXdyaWdodC1jb3JlL3R5cGVzL3R5cGVzLmQudHM_.md) - Core type definitions
+
+### Test API
+- [test.d.ts](components/cGFja2FnZXMvcGxheXdyaWdodC90eXBlcy90ZXN0LmQudHM_.md) - Test framework API
+- [Playwright API Reference](api/index.md) - Test utilities
+
+### Component API
+- [Playwright Components Documentation](components/index.md) - Component testing API
+- [types.d.ts](components/cGFja2FnZXMvcGxheXdyaWdodC1jbGllbnQvdHlwZXMvdHlwZXMuZC50cw__.md) - Client-side types
+
+### Protocol Reference
+- [protocol.d.ts](components/cGFja2FnZXMvcGxheXdyaWdodC1jb3JlL3NyYy9zZXJ2ZXIvY2hyb21pdW0vcHJvdG9jb2wuZC50cw__.md) - Chromium protocol
+- [protocol.d.ts](components/cGFja2FnZXMvcGxheXdyaWdodC1jb3JlL3R5cGVzL3Byb3RvY29sLmQudHM_.md) - General protocol types
+
+## Quick Solutions
+
+| I want to... | Documentation Section |
+|--------------|----------------------|
+| Set up Playwright for my project | [Getting Started > Installation and Setup](#installation-and-setup) |
+| Write my first test | [Getting Started > First Steps](#first-steps) |
+| Find elements on a page | [Common Tasks > Element Selection and Interaction](#element-selection-and-interaction) |
+| Click buttons and fill forms | [Common Tasks > Working with Forms](#working-with-forms) |
+| Verify page content | [Common Tasks > Writing Assertions](#writing-assertions) |
+| Mock API responses | [Advanced Features > Network Interception](#network-interception) |
+| Test on mobile viewports | [Advanced Features > Mobile Emulation](#mobile-emulation) |
+| Debug failing tests | [Troubleshooting > Debugging Tests](#debugging-tests) |
+| Test React/Vue components | [Advanced Features > Component Testing](#component-testing) |
+| Speed up my test suite | [Troubleshooting > Performance Optimization](#performance-optimization) |
+| Handle authentication | [Advanced Features > Authentication Strategies](#authentication-strategies) |
+| Compare screenshots | [Advanced Features > Visual Testing](#visual-testing) |
+| Run tests in parallel | [Advanced Features > Parallel Test Execution](#parallel-test-execution) |
+| Fix flaky tests | [Troubleshooting > Common Errors](#common-errors) |
+| Understand Playwright architecture | [Getting Started > Project Configuration](#project-configuration) |
+
+## Related Resources
+
+- [Playwright Component Relationships: User Guide](relationships.md) - Understanding how components interact
+- [Copyright Component Documentation](components/copyright.md) - Copyright information

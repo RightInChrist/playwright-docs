@@ -1,301 +1,349 @@
-# Playwright Architecture: Component Relationships
+# Playwright Component Relationships: User Guide
 
-## 1. High-Level Overview
+## High-Level Overview
 
-Playwright is structured as a monorepo with a carefully designed architecture that enables cross-browser automation through a unified API. The system is built around several key components that work together:
+Playwright is a comprehensive browser automation framework that enables reliable end-to-end testing across multiple browsers. From a user's perspective, the framework consists of several key components that work together to provide a seamless testing experience.
 
-- **Core Engine**: The foundation that provides browser communication protocols and automation primitives
-- **Browser-Specific Implementations**: Adaptations for Chromium, Firefox, and WebKit
-- **Test Runner**: A comprehensive test execution framework with fixtures and parallelization
-- **Component Testing Frameworks**: Specialized tools for testing UI components in isolation
-- **Supporting Tools**: Trace viewer, recorder, and reporting utilities
+The core components that users interact with include:
 
-These components interact through well-defined interfaces, allowing for extensibility while maintaining a consistent user experience across different browsers and testing scenarios.
+1. **Test Runner** - Executes test files and manages the test lifecycle
+2. **Browser Instances** - Chrome/Chromium, Firefox, and WebKit browser automation
+3. **Browser Contexts** - Isolated browser sessions (similar to incognito profiles)
+4. **Pages** - Individual browser tabs where actions are performed
+5. **Locators** - Mechanisms to find and interact with elements on a page
+6. **Assertions** - Validation mechanisms to verify expected behaviors
+7. **Fixtures** - Reusable test setup and teardown utilities
+8. **Component Testing** - Tools for testing UI components in isolation
 
-## 2. Component Dependency Diagram
+These components are designed to work together in a hierarchical relationship, with each layer building upon the previous one to provide a complete testing solution.
 
-```mermaid
-graph TD
-    %% Main packages
-    playwright[playwright]
-    playwright-core[playwright-core]
-    playwright-test[playwright-test]
-    
-    %% Browser-specific packages
-    chromium[playwright-chromium]
-    firefox[playwright-firefox]
-    webkit[playwright-webkit]
-    
-    %% Browser installation packages
-    browser-chromium[@playwright/browser-chromium]
-    browser-firefox[@playwright/browser-firefox]
-    browser-webkit[@playwright/browser-webkit]
-    
-    %% Component testing packages
-    ct-core[playwright-ct-core]
-    ct-react[playwright-ct-react]
-    ct-vue[playwright-ct-vue]
-    ct-svelte[playwright-ct-svelte]
-    ct-react17[playwright-ct-react17]
-    
-    %% Supporting tools
-    html-reporter[html-reporter]
-    trace-viewer[trace-viewer]
-    recorder[recorder]
-    
-    %% Dependencies
-    playwright --> playwright-core
-    chromium --> playwright-core
-    firefox --> playwright-core
-    webkit --> playwright-core
-    
-    playwright --> chromium
-    playwright --> firefox
-    playwright --> webkit
-    
-    browser-chromium --> chromium
-    browser-firefox --> firefox
-    browser-webkit --> webkit
-    
-    playwright-test --> playwright
-    
-    ct-core --> playwright-test
-    ct-react --> ct-core
-    ct-vue --> ct-core
-    ct-svelte --> ct-core
-    ct-react17 --> ct-core
-    
-    html-reporter --> playwright-test
-    trace-viewer --> playwright-core
-    recorder --> playwright-core
-    
-    %% Client packages
-    playwright-client[playwright-client]
-    playwright-client --> playwright-core
-    
-    %% MCP package
-    playwright-mcp[playwright-mcp]
-    playwright-mcp --> playwright-core
-    
-    %% Web package
-    web[web]
-    web --> playwright-core
-    
-    %% Style nodes
-    classDef core fill:#f9f,stroke:#333,stroke-width:2px
-    classDef browsers fill:#bbf,stroke:#333,stroke-width:1px
-    classDef testing fill:#bfb,stroke:#333,stroke-width:1px
-    classDef tools fill:#fbb,stroke:#333,stroke-width:1px
-    
-    class playwright-core core
-    class playwright,chromium,firefox,webkit,browser-chromium,browser-firefox,browser-webkit browsers
-    class playwright-test,ct-core,ct-react,ct-vue,ct-svelte,ct-react17 testing
-    class html-reporter,trace-viewer,recorder,web tools
-```
-
-## 3. Data Flow Diagram
-
-```mermaid
-flowchart TD
-    %% Main components
-    User([User/Test Code])
-    API[Playwright API]
-    Core[Playwright Core]
-    Protocol[Browser Protocol]
-    Browser[Browser Instance]
-    DOM[Browser DOM]
-    
-    %% Test components
-    TestRunner[Test Runner]
-    Fixtures[Test Fixtures]
-    Reporter[Test Reporter]
-    
-    %% Trace components
-    TraceCollector[Trace Collector]
-    TraceViewer[Trace Viewer]
-    
-    %% Data flows
-    User -->|"test.use()\ntest()"| TestRunner
-    TestRunner -->|"setup fixtures"| Fixtures
-    Fixtures -->|"provide browser"| API
-    
-    User -->|"page.goto()\npage.click()"| API
-    API -->|"serialize commands"| Core
-    Core -->|"protocol messages"| Protocol
-    Protocol -->|"execute actions"| Browser
-    Browser -->|"manipulate"| DOM
-    
-    Core -->|"capture events"| TraceCollector
-    TraceCollector -->|"store trace data"| TraceStorage[(Trace Storage)]
-    TraceStorage -->|"load for analysis"| TraceViewer
-    
-    DOM -->|"query results\nevents"| Protocol
-    Protocol -->|"deserialize responses"| Core
-    Core -->|"return values\nevents"| API
-    API -->|"test assertions"| User
-    
-    TestRunner -->|"test results"| Reporter
-    Reporter -->|"generate reports"| ReportOutput[(HTML/JSON Reports)]
-    
-    %% Styles
-    classDef userCode fill:#f9f,stroke:#333,stroke-width:1px
-    classDef playwrightCode fill:#bbf,stroke:#333,stroke-width:1px
-    classDef browserSide fill:#bfb,stroke:#333,stroke-width:1px
-    classDef testingTools fill:#fbb,stroke:#333,stroke-width:1px
-    classDef storage fill:#fffacd,stroke:#333,stroke-width:1px
-    
-    class User,TestRunner userCode
-    class API,Core,Protocol playwrightCode
-    class Browser,DOM browserSide
-    class Fixtures,Reporter,TraceCollector,TraceViewer testingTools
-    class TraceStorage,ReportOutput storage
-```
-
-## 4. Package Hierarchy Diagram
+## Component Dependency Diagram
 
 ```mermaid
 graph TD
-    %% Main hierarchy
-    root[Playwright Monorepo]
+    User(User) --> TestRunner
     
-    %% First level packages
-    packages[packages/]
-    examples[examples/]
-    tests[tests/]
-    utils[utils/]
-    browser_patches[browser_patches/]
+    subgraph "Playwright Test Framework"
+        TestRunner[Test Runner] --> BrowserInstance
+        TestRunner --> Assertions
+        TestRunner --> Fixtures
+        
+        BrowserInstance[Browser Instance] --> BrowserContext
+        BrowserContext[Browser Context] --> Page
+        
+        Page --> Locators
+        Page --> NetworkControl[Network Control]
+        Page --> DialogHandler[Dialog Handler]
+        
+        Locators --> Actions[Element Actions]
+        
+        Fixtures --> TestState[Test State Management]
+        Fixtures --> PageFixture[Page Fixture]
+        Fixtures --> BrowserFixture[Browser Fixture]
+        Fixtures --> ContextFixture[Context Fixture]
+        
+        ComponentTest[Component Testing] --> Mount
+        Mount --> Component
+        Component --> Locators
+    end
     
-    %% Package children
-    root --> packages
-    root --> examples
-    root --> tests
-    root --> utils
-    root --> browser_patches
+    Assertions --> ExpectAPI[Expect API]
+    ExpectAPI --> Matchers[Matchers]
     
-    %% Core packages
-    packages --> playwright
-    packages --> playwright-core
-    packages --> playwright-test
-    
-    %% Browser-specific packages
-    packages --> browser-packages[Browser Packages]
-    browser-packages --> playwright-chromium
-    browser-packages --> playwright-firefox
-    browser-packages --> playwright-webkit
-    browser-packages --> playwright-browser-chromium
-    browser-packages --> playwright-browser-firefox
-    browser-packages --> playwright-browser-webkit
-    
-    %% Component testing packages
-    packages --> ct-packages[Component Testing]
-    ct-packages --> playwright-ct-core
-    ct-packages --> playwright-ct-react
-    ct-packages --> playwright-ct-vue
-    ct-packages --> playwright-ct-svelte
-    ct-packages --> playwright-ct-react17
-    
-    %% Tool packages
-    packages --> tool-packages[Tools]
-    tool-packages --> html-reporter
-    tool-packages --> trace-viewer
-    tool-packages --> recorder
-    tool-packages --> web
-    
-    %% Examples
-    examples --> example-todomvc[todomvc]
-    examples --> example-github-api[github-api]
-    examples --> example-mock-battery[mock-battery]
-    
-    %% Tests
-    tests --> test-components[components/]
-    tests --> test-config[config/]
-    tests --> test-installation[installation/]
-    
-    %% Utils
-    utils --> flakiness-dashboard
-    utils --> linux-browser-dependencies
-    
-    %% Browser patches
-    browser_patches --> winldd
-    
-    %% Styles
-    classDef rootNode fill:#f9f,stroke:#333,stroke-width:2px
-    classDef mainCategory fill:#bbf,stroke:#333,stroke-width:1px
-    classDef package fill:#bfb,stroke:#333,stroke-width:1px
-    classDef grouping fill:#fbb,stroke:#333,stroke-width:1px
-    
-    class root rootNode
-    class packages,examples,tests,utils,browser_patches mainCategory
-    class playwright,playwright-core,playwright-test,playwright-chromium,playwright-firefox,playwright-webkit,html-reporter,trace-viewer,recorder package
-    class browser-packages,ct-packages,tool-packages grouping
+    style User fill:#f9f,stroke:#333,stroke-width:2px
+    style TestRunner fill:#bbf,stroke:#333,stroke-width:1px
+    style BrowserInstance fill:#dfd,stroke:#333,stroke-width:1px
+    style ComponentTest fill:#ffd,stroke:#333,stroke-width:1px
 ```
 
-## 5. Key Relationships and Dependencies
+This diagram illustrates the primary components that users interact with when using Playwright. The Test Runner orchestrates the execution of tests, managing browser instances, contexts, and pages. Locators provide the mechanism to find elements on the page, while assertions validate the expected behavior. Component testing provides specialized tools for testing UI components in isolation.
 
-### Core Engine and Browser Implementations
+## User Workflow Diagram
 
-The `playwright-core` package serves as the foundation for all browser automation. It defines the protocols and interfaces for communicating with browsers but doesn't include any browser binaries. The browser-specific packages (`playwright-chromium`, `playwright-firefox`, `playwright-webkit`) depend on this core and implement the browser-specific adaptations.
+```mermaid
+sequenceDiagram
+    participant User
+    participant TestRunner as Test Runner
+    participant Browser
+    participant Context as Browser Context
+    participant Page
+    participant Locator
+    participant Assertion as Expect/Assertion
+    
+    User->>TestRunner: Run test
+    TestRunner->>Browser: Launch browser
+    Browser-->>TestRunner: Browser instance
+    TestRunner->>Context: Create browser context
+    Context-->>TestRunner: Context instance
+    TestRunner->>Page: Create new page
+    Page-->>TestRunner: Page instance
+    
+    TestRunner->>Page: Navigate to URL
+    Page-->>TestRunner: Navigation complete
+    
+    TestRunner->>Locator: Find element
+    Locator-->>TestRunner: Element locator
+    TestRunner->>Locator: Perform action (click, fill, etc.)
+    
+    TestRunner->>Assertion: Verify condition
+    Assertion-->>TestRunner: Assertion result
+    
+    TestRunner->>Context: Close context
+    TestRunner->>Browser: Close browser
+    TestRunner-->>User: Test results
+```
 
-The main `playwright` package serves as an integration point, depending on all three browser implementations to provide a unified API. This layered approach allows users to:
-1. Use only specific browsers if desired
-2. Utilize the core without bundling browsers (for custom implementations)
-3. Access a consistent API regardless of the target browser
+This sequence diagram shows the typical workflow when executing a Playwright test. The test runner launches a browser, creates a context and page, performs actions using locators, and validates behavior using assertions. This workflow represents the core interaction pattern that most users will follow when working with Playwright.
 
-### Test Runner and Component Testing
+## Conceptual Model Diagram
 
-The test runner (`playwright-test`) builds upon the core automation capabilities but adds:
-- Test lifecycle management
-- Fixture system for dependency injection
-- Parallelization and sharding
-- Reporting infrastructure
+```mermaid
+classDiagram
+    class TestRunner {
+        +run(testFiles)
+        +configure(config)
+    }
+    
+    class Browser {
+        +newContext()
+        +close()
+    }
+    
+    class BrowserContext {
+        +newPage()
+        +cookies()
+        +clearCookies()
+        +close()
+    }
+    
+    class Page {
+        +goto(url)
+        +locator(selector)
+        +getByRole(role)
+        +getByText(text)
+        +screenshot()
+        +evaluate(pageFunction)
+        +route(url, handler)
+        +close()
+    }
+    
+    class Locator {
+        +click()
+        +fill(value)
+        +check()
+        +selectOption(values)
+        +isVisible()
+        +textContent()
+    }
+    
+    class Expect {
+        +toBeVisible()
+        +toHaveText(text)
+        +toHaveValue(value)
+        +toHaveCount(count)
+    }
+    
+    class Fixture {
+        +use(callback)
+        +extend(extensions)
+    }
+    
+    class ComponentTesting {
+        +mount(component)
+        +unmount()
+    }
+    
+    TestRunner --> Browser : manages
+    Browser --> BrowserContext : creates
+    BrowserContext --> Page : creates
+    Page --> Locator : provides
+    TestRunner --> Expect : uses
+    TestRunner --> Fixture : uses
+    TestRunner --> ComponentTesting : extends to
+    ComponentTesting --> Locator : uses
+```
 
-The component testing frameworks extend this further with specialized capabilities for mounting and testing UI components. Each framework-specific package (`playwright-ct-react`, `playwright-ct-vue`, etc.) depends on the common `playwright-ct-core` package, which provides the base functionality for component testing.
+This class diagram illustrates the conceptual model of Playwright's core components and their relationships. The TestRunner manages the overall test execution, while Browser, BrowserContext, and Page form a hierarchical relationship for browser automation. Locators provide the mechanism to interact with elements on the page, and Expect provides assertions for validation. Fixtures enable reusable test setup and teardown, while ComponentTesting extends the framework for component-specific testing.
 
-### Supporting Tools
+## Key Relationships for Users
 
-Several supporting tools enhance the developer experience:
-- The HTML reporter generates test reports and depends on the test runner
-- The trace viewer visualizes execution traces and depends on the core
-- The recorder helps create tests by recording user interactions
+### Components Typically Used Together
 
-These tools are designed to be optional but integrate seamlessly with the core functionality.
+1. **Page and Locators**
+   - Pages provide methods to create locators (`page.locator()`, `page.getByRole()`, etc.)
+   - Locators are bound to a specific page and used to interact with elements
 
-## 6. Areas for Potential Decoupling
+2. **Locators and Assertions**
+   - Locators are often used with assertions to validate element state
+   - Example: `await expect(page.getByText('Success')).toBeVisible()`
 
-### 1. Browser-Specific Implementation Details
+3. **Browser Contexts and Pages**
+   - Each page belongs to a browser context
+   - Multiple pages can share the same context for related test scenarios
+   - Contexts provide isolation between different test scenarios
 
-Currently, there's tight coupling between the core and browser-specific implementations. While necessary for consistent behavior, this coupling makes it challenging to add support for new browsers or customize browser behavior. Potential improvements:
+4. **Fixtures and Test Runner**
+   - Fixtures provide reusable setup/teardown logic
+   - The test runner automatically manages built-in fixtures like `page` and `browser`
+   - Custom fixtures extend the test runner's capabilities
 
-- More explicit interface definitions between core and browser implementations
-- Plugin system for browser adapters to allow third-party browser support
-- Configuration points for browser-specific behavior customization
+5. **Component Testing and Mount**
+   - Component testing uses the `mount` function to render components
+   - Mounted components can be interacted with using locators
 
-### 2. Test Runner and Core Engine
+### Data Flow During Typical Operations
 
-The test runner is tightly integrated with the core engine. This provides a seamless experience but makes it difficult to use alternative test runners or adapt Playwright to different testing paradigms. Potential improvements:
+1. **Navigation Flow**
+   - Test initiates navigation via `page.goto(url)`
+   - Page loads and renders content
+   - Test interacts with elements using locators
+   - Assertions validate the expected state
 
-- Better separation between test runner logic and browser automation
-- More explicit APIs for test lifecycle management
-- Adapter pattern for integrating with third-party test runners
+2. **Element Interaction Flow**
+   - Test creates a locator to find an element
+   - Locator waits for the element to be actionable
+   - Action is performed on the element (click, fill, etc.)
+   - Page responds to the action (navigation, state change, etc.)
+   - Assertions validate the new state
 
-### 3. Component Testing Framework Dependencies
+3. **Network Interception Flow**
+   - Test sets up route handlers via `page.route()`
+   - Page makes network requests during test execution
+   - Route handlers intercept matching requests
+   - Handlers modify, fulfill, or abort requests
+   - Page renders based on the modified network responses
 
-The component testing frameworks have framework-specific implementations that depend on the core component testing package. This creates maintenance challenges when frameworks update. Potential improvements:
+4. **Component Testing Flow**
+   - Test mounts a component using `mount()`
+   - Component renders in an isolated environment
+   - Test interacts with the component using locators
+   - Component responds to interactions
+   - Assertions validate component behavior
 
-- More flexible mounting strategies that can adapt to framework changes
-- Clearer boundaries between framework-specific and common functionality
-- Versioning strategy that allows for framework version compatibility
+### Required Setup and Initialization
 
-### 4. Reporter and Test Runner Integration
+1. **Test Runner Setup**
+   - Install Playwright: `npm init playwright@latest`
+   - Configure in `playwright.config.js` (browsers, reporters, etc.)
+   - Create test files with `.spec.js` or `.spec.ts` extension
 
-The reporting system is tightly coupled with the test runner, making it challenging to create custom reporters or integrate with external reporting systems. Potential improvements:
+2. **Browser Initialization**
+   - Automatically handled by the test runner
+   - For custom usage: `const browser = await chromium.launch()`
 
-- Event-based reporting system with standardized events
-- Pluggable reporter architecture with clear extension points
-- Separation of test execution data collection from report generation
+3. **Context Creation**
+   - Automatically handled by the test runner
+   - For custom usage: `const context = await browser.newContext()`
+   - Configure with options like viewport, geolocation, permissions
 
-## 7. Conclusion
+4. **Page Creation**
+   - Automatically handled by the test runner
+   - For custom usage: `const page = await context.newPage()`
 
-Playwright's architecture demonstrates a well-thought-out approach to cross-browser automation and testing. The component relationships show a balance between integration for user experience and separation for maintainability. The core-to-browser relationship is particularly well-designed, allowing for a unified API while accommodating browser-specific differences.
+5. **Component Testing Setup**
+   - Install component testing package: `npm install @playwright/experimental-ct-react` (for React)
+   - Configure in `playwright-ct.config.js`
+   - Create component test files with `.spec.jsx` or `.spec.tsx` extension
 
-The areas for potential decoupling identified above represent opportunities for evolution rather than critical flaws. As the project continues to grow, addressing these coupling points could enhance extensibility and make it easier for the community to contribute to specific areas without requiring deep knowledge of the entire system.
+### Common Customization and Extension Points
+
+1. **Custom Fixtures**
+   - Extend the test runner with custom fixtures for reusable logic
+   - Example: Creating a "logged-in" state for multiple tests
+
+   ```javascript
+   const test = base.extend({
+     loggedInPage: async ({ page }, use) => {
+       await page.goto('/login');
+       await page.fill('#username', 'user');
+       await page.fill('#password', 'pass');
+       await page.click('button[type="submit"]');
+       await use(page);
+     }
+   });
+   ```
+
+2. **Test Hooks**
+   - Use `beforeEach`, `afterEach`, `beforeAll`, and `afterAll` for setup/teardown
+   - Example: Setting up test data before tests run
+
+   ```javascript
+   test.beforeAll(async () => {
+     // Setup test database
+   });
+   ```
+
+3. **Custom Assertions**
+   - Extend the expect API with custom matchers
+   - Example: Creating a custom matcher for application-specific validation
+
+   ```javascript
+   expect.extend({
+     toBeValidUser(received) {
+       return {
+         pass: received && received.id && received.name,
+         message: () => `Expected ${received} to be a valid user`
+       };
+     }
+   });
+   ```
+
+4. **Test Runner Plugins**
+   - Implement the `TestRunnerPlugin` interface to extend the test runner
+   - Example: Custom reporting, test filtering, or environment setup
+
+5. **Component Testing Hooks**
+   - Customize component mounting behavior with hooks
+   - Example: Providing context providers or theme wrappers
+
+   ```javascript
+   // playwright/index.ts
+   export const customHooks = {
+     mount: async (component, options) => {
+       return mount(
+         <ThemeProvider theme="light">
+           {component}
+         </ThemeProvider>,
+         options
+       );
+     }
+   };
+   ```
+
+## Do's and Don'ts
+
+### Do's
+
+1. **Do use locators instead of selectors when possible**
+   - Locators provide auto-waiting and retry mechanisms
+   - Role-based locators (`getByRole`, `getByText`) are more resilient to UI changes
+
+2. **Do create isolated tests with fresh browser contexts**
+   - Each test should start with a clean state
+   - Use the built-in isolation provided by the test runner
+
+3. **Do leverage fixtures for common setup**
+   - Extract repeated setup into fixtures
+   - Use built-in fixtures like `page` and `browser` when possible
+
+4. **Do use auto-waiting capabilities**
+   - Let Playwright handle waiting for elements to be actionable
+   - Avoid explicit waits when possible
+
+5. **Do use the trace viewer for debugging**
+   - Enable traces with `--trace on` for detailed debugging information
+   - Use screenshots and videos for visual debugging
+
+6. **Do organize tests by user flows**
+   - Structure tests around user journeys and scenarios
+   - Focus on testing behavior rather than implementation details
+
+7. **Do use component testing for UI components**
+   - Test components in isolation before integration
+   - Use component testing for faster feedback cycles
+
+### Don'ts
+
+1. **Don't mix Playwright with other browser automation tools in the same test**
+   - Stick to Playwright's API for consistent behavior
+   
