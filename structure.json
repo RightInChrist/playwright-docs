@@ -1,0 +1,40 @@
+{
+  "title": "playwright Documentation",
+  "description": "Generated documentation for playwright",
+  "timestamp": "2025-03-22T21:30:35.769Z",
+  "repository": "/Users/gavin/github/ric-docs/test-repos/playwright",
+  "statistics": {
+    "files": 589,
+    "linesOfCode": 234484,
+    "languages": {
+      "typescript": 589
+    }
+  },
+  "sections": [
+    {
+      "id": "overview",
+      "title": "Project Overview",
+      "fileName": "overview.md"
+    },
+    {
+      "id": "architecture",
+      "title": "Architecture",
+      "fileName": "architecture.md"
+    },
+    {
+      "id": "components",
+      "title": "Key Components",
+      "fileName": "components/index.md"
+    },
+    {
+      "id": "relationships",
+      "title": "Component Relationships",
+      "fileName": "relationships.md"
+    },
+    {
+      "id": "api",
+      "title": "API Documentation",
+      "fileName": "api/index.md"
+    }
+  ]
+}
